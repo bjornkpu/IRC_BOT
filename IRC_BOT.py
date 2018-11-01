@@ -91,7 +91,7 @@ def main():
                     group = message.split('@',1)[1].split(' ',1)[0].strip().lower()
 
                     # Help
-                    if group == botnick:
+                    if message == '@' + botnick:
                         sendmsg("@" + botnick + "         - Help.",target)
                         sendmsg("@groups          - List groups.",target)
                         sendmsg("@<group> <add/remove> <nick [nick2]...>  - Add/remove a given nicks.",target)
