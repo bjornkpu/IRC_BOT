@@ -96,7 +96,7 @@ def main():
                         sendmsg("@groups          - List groups.",target)
                         sendmsg("@<group> <add/remove> <nick [nick2]...>  - Add/remove a given nicks.",target)
                         sendmsg("@group <add/remove> <groupname [groupname2]...>   - Add/remove given groups",target)
-                        sendmsg("PS: I can be configured in private chat")
+                        sendmsg("PS: I can be configured in private chat",target)
 
                     # List groups
                     if group == "groups": sendmsg(' '.join(groups),target)
