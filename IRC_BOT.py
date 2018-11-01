@@ -5,8 +5,9 @@ import getpass
 
 ircsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server = "chat.freenode.net" # Server
-channel = "#tihlde-drift" # Channel
-botnick = "mentionbot" # Your bots nick
+channel = "#bot-test-bk" # Channel
+#channel = "#tihlde-drift" # Channel
+botnick = "mentionbot2" # Your bots nick
 adminname = "bjornkpu" #Your IRC nickname
 exitcode = "bye " + botnick
 
@@ -61,12 +62,15 @@ def main():
         if ircmsg.find("PRIVMSG") != -1:
             name = ircmsg.split('!',1)[0][1:]
             message = ircmsg.split('PRIVMSG',1)[1].split(':',1)[1]
+            target = ircmsg.split('PRIVMSG',1)[1].split(':',1)[0].strip()
+            if target == botnick:
+                target = name
 
             if len(name) < 17:
 
                 # Hi answer
                 if message.lower().find('hi ' + botnick.lower()) != -1:
-                    sendmsg("Hello " + name + "!")
+                    sendmsg("Hello " + name + "!", target)
 
                 # Send message for me
                 if message[:5].find('.tell') != -1:
@@ -85,20 +89,20 @@ def main():
                     if len(command) == 1:
                         group = message[1:].split(' ',3)[0]
                         if group == botnick:
-                            sendmsg("@" + botnick + "                    - Help.")
-                            sendmsg("@groups                        - List groups.")
-                            sendmsg("@<group> <add/remove> <user>   - Add/remove a given user.")
+                            sendmsg("@" + botnick + "                    - Help.",target)
+                            sendmsg("@groups                        - List groups.",target)
+                            sendmsg("@<group> <add/remove> <user>   - Add/remove a given user.",target)
                         if group == "groups":
                             grouplist = ""
                             for group in groups:
                                 grouplist += group + " "
-                            sendmsg(grouplist)
+                            sendmsg(grouplist,target)
                         else:
                             if group in groups:
                                 userlist = ""
                                 for user in groups[group]:
                                     userlist += user + ":"
-                                sendmsg(userlist)
+                                sendmsg(userlist,target)
 
                     if len(command) == 3 and message[1:].split(' ',3)[0] in groups:
                         if message.split(' ',3)[1].lower() == "add":
@@ -109,7 +113,7 @@ def main():
 
                 # Quit bot
                 if name.lower() == adminname.lower() and message.rstrip() == exitcode:
-                    sendmsg("oh...okay. :'(")
+                    sendmsg("oh...okay. :'(",target)
                     ircsock.send(bytes("QUIT \n", "UTF-8"))
                     return
 
