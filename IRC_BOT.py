@@ -42,15 +42,29 @@ def writeJson():
         global groups
         json.dump(groups, write_file)
 
-def add(group, user):
-    if user not in groups.get(group):
-        groups.get(group).append(user)
-        writeJson()
+def add(group, users):
+    for user in users:
+        if user not in groups.get(group):
+            groups.get(group).append(user)
+    writeJson()
 
-def remove(group, user):
-    while user in groups.get(group):
-        groups.get(group).remove(user)
-        writeJson()
+def remove(group, users):
+    for user in users:
+        while user in groups.get(group):
+            groups.get(group).remove(user)
+    writeJson()
+
+def addGroup(groupList):
+    for group in groupList:
+        if group not in groups:
+            groups[group] = []
+    writeJson()
+
+def removeGroup(groupList):
+    for group in groupList:
+        while group in groups:
+            groups.pop(group)
+    writeJson()
 
 def main():
     joinchan(channel)
@@ -64,8 +78,7 @@ def main():
             name = ircmsg.split('!',1)[0][1:]
             message = ircmsg.split('PRIVMSG',1)[1].split(':',1)[1]
             target = ircmsg.split('PRIVMSG',1)[1].split(':',1)[0].strip()
-            if target == botnick:
-                target = name
+            if target == botnick: target = name
 
             if len(name) < 17:
 
@@ -73,47 +86,50 @@ def main():
                 if message.lower().find('hi ' + botnick.lower()) != -1:
                     sendmsg("Hello " + name + "!", target)
 
-                # Send message for me
-                if message[:5].find('.tell') != -1:
-                    target = message.split(' ', 1)[1]
-                    if target.find(' ') != -1:
-                        message = target.split(' ', 1)[1]
-                        target = target.split(' ')[0]
-                    else:
-                        target = name
-                        message = "Could not parse. The message should be in the format of '.tell [target] [message]' to work properly."
-                    sendmsg(message, target)
-
                 # Group management
-                if message[:5].find('@') != -1:
-                    command = message.split(' ')
-                    if len(command) == 1:
-                        group = message[1:].split(' ',3)[0]
-                        if group == botnick:
-                            sendmsg("@" + botnick + "                    - Help.",target)
-                            sendmsg("@groups                        - List groups.",target)
-                            sendmsg("@<group> <add/remove> <user>   - Add/remove a given user.",target)
-                        if group == "groups":
-                            sendmsg(' '.join(groups),target)
-                        else:
-                            if group in groups:
-                                sendmsg(' '.join(groups[group]), target)
+                if message.find('@') != -1:
+                    group = message.split('@',1)[1].split(' ',1)[0].strip().lower()
 
-                    if len(command) == 3 and message[1:].split(' ',3)[0] in groups:
-                        if message.split(' ',3)[1].lower() == "add":
-                            add(message[1:].split(' ',3)[0], message.split(' ',3)[2])
+                    # Help
+                    if group == botnick:
+                        sendmsg("@" + botnick + "         - Help.",target)
+                        sendmsg("@groups          - List groups.",target)
+                        sendmsg("@<group> <add/remove> <nick [nick2]...>  - Add/remove a given nicks.",target)
+                        sendmsg("@group <add/remove> <groupname [groupname2]...>   - Add/remove given groups",target)
+                        sendmsg("PS: I can be configured in private chat")
 
-                        if message.split(' ',3)[1].lower() == "remove":
-                            remove(message[1:].split(' ',3)[0], message.split(' ',3)[2])
+                    # List groups
+                    if group == "groups": sendmsg(' '.join(groups),target)
+
+                    # list nicks in group
+                    elif group in groups:
+                        if message.find('@' + group + ' add') == -1 and message.find('@' + group + ' remove') == -1:
+                            sendmsg(' '.join(groups[group]), target)
+
+                    # Add/remove nicks to/from group
+                        if message.find('@' + group + ' add') != -1:
+                            users = message.split('add',1)[1].strip().split(' ')
+                            add(group, users)
+
+                        if message.find('@' + group + ' remove') != -1:
+                            users = message.split('remove',1)[1].strip().split(' ')
+                            remove(group, users)
+
+                    # Add/remove groups
+                    if group == "group":
+                        if message.find('@' + group + ' add') != -1:
+                            groupList = message.split('add',1)[1].strip().split(' ')
+                            addGroup(groupList)
+
+                        if message.find('@' + group + ' remove') != -1:
+                            groupList = message.split('remove',1)[1].strip().split(' ')
+                            removeGroup(groupList)
 
                 # Quit bot
                 if name.lower() == adminname.lower() and message.rstrip() == exitcode:
                     sendmsg("oh...okay. :'(",target)
                     ircsock.send(bytes("QUIT \n", "UTF-8"))
                     return
-
-
-
 
         else:
             if ircmsg.find("PING :") != -1:
