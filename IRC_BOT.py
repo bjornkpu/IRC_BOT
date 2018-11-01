@@ -5,9 +5,9 @@ import getpass
 
 ircsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server = "chat.freenode.net" # Server
-#channel = "#bot-test-bk" # Channel
-channel = "#tihlde-drift" # Channel
-botnick = "mentionbot" # Your bots nick
+channel = "#bot-test-bk" # Channel
+#channel = "#tihlde-drift" # Channel
+botnick = "mentionbot2" # Your bots nick
 adminname = "bjornkpu" #Your IRC nickname
 exitcode = "bye " + botnick
 
@@ -43,8 +43,9 @@ def writeJson():
         json.dump(groups, write_file)
 
 def add(group, user):
-    groups.get(group).append(user)
-    writeJson()
+    if user not in groups.get(group):
+        groups.get(group).append(user)
+        writeJson()
 
 def remove(group, user):
     while user in groups.get(group):
@@ -57,7 +58,7 @@ def main():
     while 1:
         ircmsg = ircsock.recv(2048).decode("UTF-8")
         ircmsg = ircmsg.strip('\n\r')
-        print(ircmsg)
+        if ircmsg.find('PING :') == -1: print(ircmsg)
 
         if ircmsg.find("PRIVMSG") != -1:
             name = ircmsg.split('!',1)[0][1:]
@@ -93,16 +94,10 @@ def main():
                             sendmsg("@groups                        - List groups.",target)
                             sendmsg("@<group> <add/remove> <user>   - Add/remove a given user.",target)
                         if group == "groups":
-                            grouplist = ""
-                            for group in groups:
-                                grouplist += group + " "
-                            sendmsg(grouplist,target)
+                            sendmsg(' '.join(groups),target)
                         else:
                             if group in groups:
-                                userlist = ""
-                                for user in groups[group]:
-                                    userlist += user + ":"
-                                sendmsg(userlist,target)
+                                sendmsg(' '.join(groups[group]), target)
 
                     if len(command) == 3 and message[1:].split(' ',3)[0] in groups:
                         if message.split(' ',3)[1].lower() == "add":
