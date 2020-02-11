@@ -4,7 +4,8 @@ After=multi-user.target
 
 [Service]
 Type=idle
-ExecStart=/usr/bin/python3 -u /home/staff/drift/irc/mentionbot/bot.py >> /home/staff/drift/irc/mentionbot/bot.log
+WorkingDirectory=/home/staff/drift/irc/mentionbot
+ExecStart=/usr/bin/python3 -u bot.py >> bot.log
 Restart=always
 User=drift
 
