@@ -8,6 +8,8 @@ WorkingDirectory=/home/staff/drift/irc/mentionbot
 ExecStart=/usr/bin/python3 -u bot.py
 Restart=always
 User=drift
+StandardOutput=append:mentionbot.log
+StandardError=append:mentionbot.log
 
 [Install]
 WantedBy=multi-user.target

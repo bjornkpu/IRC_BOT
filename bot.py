@@ -5,9 +5,9 @@ from secret import password
 
 ircsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server = "chat.freenode.net" # Server
-channel = "#bot-test-bk" # Channel
-#channel = "#tihlde-drift" # Channel
-botnick = "mentionbot2" # Your bots nick
+#channel = "#bot-test-bk" # Channel
+channel = "#tihlde-drift" # Channel
+botnick = "mentionbot" # Your bots nick
 adminname = "bjornkpu" #Your IRC nickname
 exitcode = "bye " + botnick
 
